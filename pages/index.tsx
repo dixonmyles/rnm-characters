@@ -33,7 +33,7 @@ export default function Home({
   allEpisodes: Episode[];
 }) {
   const [displayedCharacters, setDisplayedCharacters] = useState(characters);
-  const [selectedEp, setSelectedEp] = useState(null);
+  const [selectedEp, setSelectedEp] = useState<number | null>(null);
 
   const displayCharactersForSelectedEpisode = async (episodeId: number) => {
     const episodeCharacterUrls: string[] = await getCharactersForEpisode(
@@ -51,8 +51,8 @@ export default function Home({
     setDisplayedCharacters(epChars);
   };
 
-  const handleOnEpisodeClicked = async (e: React.MouseEvent) => {
-    const episodeId = e.currentTarget.dataset.episodeId;
+  const handleOnEpisodeClicked = async (e: React.MouseEvent<HTMLLIElement>) => {
+    const episodeId = Number(e.currentTarget.dataset.episodeId);
 
     if (selectedEp !== episodeId) {
       console.log('clicked new');
@@ -116,10 +116,9 @@ export default function Home({
                   disablePadding
                   data-episode-id={episode.id}
                   onClick={handleOnEpisodeClicked}
-                  selected={episode.id == selectedEp}
                 >
                   <ListItemButton
-                    selected={episode.id == selectedEp}
+                    selected={episode.id === selectedEp}
                     sx={{
                       border: `1px solid ${cyan[800]}`,
                       borderRadius: 2,
