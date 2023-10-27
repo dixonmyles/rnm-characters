@@ -6,15 +6,25 @@ import {
   CardContent,
   CardMedia,
   Container,
+  Divider,
   Grid,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
   Typography,
 } from '@mui/material';
 import { cyan, green } from '@mui/material/colors';
-import { getPhotos, rnmApiResult } from '@/lib/api';
-import { useState } from 'react';
+import { Character, Episode } from '@/interfaces';
+import { getAllCharacters, getAllEpisodes } from '@/lib/api';
 
-export default function Home({ data }: { data: rnmApiResult[] }) {
-  const [images, setImages] = useState(data);
+export default function Home({
+  characters,
+  episodes,
+}: {
+  characters: Character[];
+  episodes: Episode[];
+}) {
   return (
     <>
       <Head>
@@ -31,50 +41,69 @@ export default function Home({ data }: { data: rnmApiResult[] }) {
             textAlign="center"
             variant="h3"
           >
-            Rick & Morty Image Gallery
+            Rick & Morty Characters
           </Typography>
         </Container>
-        <Grid container spacing={2} justifyContent="center">
-          {images.map((image) => (
-            <Grid
-              item
-              xs={12}
-              sm={6}
-              md={4}
-              key={image.id}
-              boxShadow="base"
-              borderRadius="10px"
+        <Grid container spacing={2}>
+          <Grid item xs={4} md={2} padding={1}>
+            <List
+              sx={{
+                color: cyan[300],
+              }}
             >
-              <Card>
-                <CardMedia>
-                  <Image
-                    src={image.image}
-                    alt={image.name}
-                    width={0}
-                    height={0}
-                    sizes="100vw"
-                    style={{ width: '100%', height: 'auto' }}
-                  />
-                </CardMedia>
-                <CardContent
-                  sx={{
-                    bgcolor: green[900],
-                  }}
-                >
-                  <Typography
-                    variant="body2"
-                    color={cyan[300]}
-                    textAlign="center"
-                    fontSize={24}
-                    fontWeight="bold"
-                  >
-                    {image.name}
-                  </Typography>
-                </CardContent>
-              </Card>
+              <ListItem>
+                <ListItemText>Episodes</ListItemText>
+              </ListItem>
+              <Divider
+                sx={{
+                  borderColor: cyan[300],
+                }}
+              />
+              {episodes.map((episode) => (
+                <ListItem key={episode.id}>
+                  <ListItemButton>
+                    <ListItemText primary={episode.name} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Grid>
+          <Grid item xs={8} md={10}>
+            <Grid container columns={10} spacing={2} justifyContent="center">
+              {characters.map((character) => (
+                <Grid item xs={10} sm={3} md={2} key={character.id}>
+                  <Card sx={{ borderRadius: 5 }}>
+                    <CardMedia>
+                      <Image
+                        src={character.image}
+                        alt={character.name}
+                        width={0}
+                        height={0}
+                        sizes="100vw"
+                        style={{ width: '100%', height: 'auto' }}
+                      />
+                    </CardMedia>
+                    <CardContent
+                      sx={{
+                        bgcolor: green[900],
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        color={cyan[300]}
+                        textAlign="center"
+                        fontSize={24}
+                        fontWeight="bold"
+                      >
+                        {character.name}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+              <Grid item xs={12}></Grid>
             </Grid>
-          ))}
-          <Grid item xs={12}></Grid>
+          </Grid>
         </Grid>
       </Box>
     </>
@@ -82,10 +111,12 @@ export default function Home({ data }: { data: rnmApiResult[] }) {
 }
 
 export async function getServerSideProps() {
-  const data = await getPhotos();
+  const characters = await getAllCharacters();
+  const episodes = await getAllEpisodes();
   return {
     props: {
-      data,
+      characters,
+      episodes,
     },
   };
 }
