@@ -14,17 +14,43 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
-import { cyan, green } from '@mui/material/colors';
+import { cyan } from '@mui/material/colors';
 import { Character, Episode } from '@/interfaces';
-import { getAllCharacters, getAllEpisodes } from '@/lib/api';
+import {
+  getAllCharacters,
+  getCharactersForEpisode,
+  getEntireEpisodeList,
+  getEpisodeById,
+} from '@/lib/api';
+import Link from 'next/link';
+import { useState } from 'react';
 
 export default function Home({
   characters,
-  episodes,
+  allEpisodes,
 }: {
   characters: Character[];
-  episodes: Episode[];
+  allEpisodes: Episode[];
 }) {
+  const [displayedCharacters, setDisplayedCharacters] = useState(characters);
+  const handleOnEpisodeClicked = async (e: React.MouseEvent) => {
+    const episodeId = e.currentTarget.dataset.episodeId;
+    const episodeCharacterUrls: string[] = await getCharactersForEpisode(
+      episodeId,
+    );
+    let epChars: Character[] = [];
+    const characterRequests = episodeCharacterUrls.map((url) => fetch(url));
+    const characterResponses = await Promise.all(characterRequests);
+    console.log(characterResponses);
+    epChars = await Promise.all(
+      characterResponses.map(async (response) => {
+        const data: Character = await response.json();
+        return data;
+      }),
+    );
+    setDisplayedCharacters(epChars);
+  };
+
   return (
     <>
       <Head>
@@ -33,10 +59,10 @@ export default function Home({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Box overflow="hidden" bgcolor="#011401" minHeight="100vh">
+      <Box overflow="hidden" bgcolor="primary.dark" minHeight="100vh">
         <Container>
           <Typography
-            color={cyan[300]}
+            color="secondary"
             mb="1rem"
             textAlign="center"
             variant="h3"
@@ -49,6 +75,9 @@ export default function Home({
             <List
               sx={{
                 color: cyan[300],
+                padding: '0 4px',
+                maxHeight: '100vh',
+                overflowY: 'scroll',
               }}
             >
               <ListItem>
@@ -59,8 +88,18 @@ export default function Home({
                   borderColor: cyan[300],
                 }}
               />
-              {episodes.map((episode) => (
-                <ListItem key={episode.id}>
+              {allEpisodes.map((episode) => (
+                <ListItem
+                  key={episode.id}
+                  sx={{
+                    border: `1px solid ${cyan[800]}`,
+                    margin: '5px 0',
+                    borderRadius: 2,
+                  }}
+                  disablePadding
+                  data-episode-id={episode.id}
+                  onClick={handleOnEpisodeClicked}
+                >
                   <ListItemButton>
                     <ListItemText primary={episode.name} />
                   </ListItemButton>
@@ -70,7 +109,7 @@ export default function Home({
           </Grid>
           <Grid item xs={8} md={10}>
             <Grid container columns={10} spacing={2} justifyContent="center">
-              {characters.map((character) => (
+              {displayedCharacters.map((character) => (
                 <Grid item xs={10} sm={3} md={2} key={character.id}>
                   <Card sx={{ borderRadius: 5 }}>
                     <CardMedia>
@@ -85,7 +124,7 @@ export default function Home({
                     </CardMedia>
                     <CardContent
                       sx={{
-                        bgcolor: green[900],
+                        bgcolor: 'primary',
                       }}
                     >
                       <Typography
@@ -112,11 +151,12 @@ export default function Home({
 
 export async function getServerSideProps() {
   const characters = await getAllCharacters();
-  const episodes = await getAllEpisodes();
+  const allEpisodes = await getEntireEpisodeList();
+
   return {
     props: {
       characters,
-      episodes,
+      allEpisodes,
     },
   };
 }
