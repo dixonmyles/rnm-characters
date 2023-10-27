@@ -23,7 +23,7 @@ import {
   getEpisodeById,
 } from '@/lib/api';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Home({
   characters,
@@ -33,15 +33,15 @@ export default function Home({
   allEpisodes: Episode[];
 }) {
   const [displayedCharacters, setDisplayedCharacters] = useState(characters);
-  const handleOnEpisodeClicked = async (e: React.MouseEvent) => {
-    const episodeId = e.currentTarget.dataset.episodeId;
+  const [selectedEp, setSelectedEp] = useState(null);
+
+  const displayCharactersForSelectedEpisode = async (episodeId: number) => {
     const episodeCharacterUrls: string[] = await getCharactersForEpisode(
       episodeId,
     );
     let epChars: Character[] = [];
     const characterRequests = episodeCharacterUrls.map((url) => fetch(url));
     const characterResponses = await Promise.all(characterRequests);
-    console.log(characterResponses);
     epChars = await Promise.all(
       characterResponses.map(async (response) => {
         const data: Character = await response.json();
@@ -50,6 +50,25 @@ export default function Home({
     );
     setDisplayedCharacters(epChars);
   };
+
+  const handleOnEpisodeClicked = async (e: React.MouseEvent) => {
+    const episodeId = e.currentTarget.dataset.episodeId;
+
+    if (selectedEp !== episodeId) {
+      console.log('clicked new');
+      setSelectedEp(episodeId);
+    } else {
+      console.log('clicked same');
+      setSelectedEp(null);
+      setDisplayedCharacters(characters);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedEp) {
+      displayCharactersForSelectedEpisode(selectedEp);
+    }
+  }, [selectedEp]);
 
   return (
     <>
@@ -99,6 +118,7 @@ export default function Home({
                   disablePadding
                   data-episode-id={episode.id}
                   onClick={handleOnEpisodeClicked}
+                  className={episode.id === selectedEp ? 'active' : ''}
                 >
                   <ListItemButton>
                     <ListItemText primary={episode.name} />
