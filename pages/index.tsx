@@ -133,6 +133,15 @@ export default function Home({
             </List>
           </Grid>
           <Grid item xs={8} md={10}>
+            {selectedEp ? (
+              <>
+                <Typography variant="h5" color="secondary">
+                  {displayedCharacters.length} Characters in Episode{' '}
+                  {selectedEp}
+                </Typography>
+                <br />
+              </>
+            ) : null}
             <Grid container columns={10} spacing={2} justifyContent="center">
               {displayedCharacters.map((character) => (
                 <Grid item xs={10} sm={5} md={3} lg={2} key={character.id}>
