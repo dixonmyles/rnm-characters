@@ -14,7 +14,7 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
-import { cyan } from '@mui/material/colors';
+import { cyan, green } from '@mui/material/colors';
 import { Character, Episode } from '@/interfaces';
 import {
   getAllCharacters,
@@ -111,16 +111,24 @@ export default function Home({
                 <ListItem
                   key={episode.id}
                   sx={{
-                    border: `1px solid ${cyan[800]}`,
                     margin: '5px 0',
-                    borderRadius: 2,
                   }}
                   disablePadding
                   data-episode-id={episode.id}
                   onClick={handleOnEpisodeClicked}
-                  className={episode.id === selectedEp ? 'active' : ''}
+                  selected={episode.id == selectedEp}
                 >
-                  <ListItemButton>
+                  <ListItemButton
+                    selected={episode.id == selectedEp}
+                    sx={{
+                      border: `1px solid ${cyan[800]}`,
+                      borderRadius: 2,
+                      '&.Mui-selected': {
+                        border: `3px solid ${cyan[500]}`,
+                        borderRadius: 2,
+                      },
+                    }}
+                  >
                     <ListItemText primary={episode.name} />
                   </ListItemButton>
                 </ListItem>
@@ -130,7 +138,7 @@ export default function Home({
           <Grid item xs={8} md={10}>
             <Grid container columns={10} spacing={2} justifyContent="center">
               {displayedCharacters.map((character) => (
-                <Grid item xs={10} sm={3} md={2} key={character.id}>
+                <Grid item xs={10} sm={5} md={3} lg={2} key={character.id}>
                   <Card sx={{ borderRadius: 5 }}>
                     <CardMedia>
                       <Image
@@ -144,7 +152,7 @@ export default function Home({
                     </CardMedia>
                     <CardContent
                       sx={{
-                        bgcolor: 'primary',
+                        bgcolor: green[900],
                       }}
                     >
                       <Typography
