@@ -4,7 +4,7 @@ import { createTheme } from '@mui/material/styles';
 export const rickAndMortyTheme = createTheme({
   palette: {
     primary: {
-      main: green[500],
+      main: green[900],
     },
     secondary: {
       main: cyan[300],
